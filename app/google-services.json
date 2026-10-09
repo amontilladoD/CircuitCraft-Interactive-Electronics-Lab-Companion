@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "600427635153",
+    "project_id": "circuitcraft-a57d0",
+    "storage_bucket": "circuitcraft-a57d0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:600427635153:android:df50345cbe648982c1c0f0",
+        "android_client_info": {
+          "package_name": "com.circuitcraft.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCpq85JZhF0SRtnKsWYV2Fcmn7KM8Pn_AI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
