@@ -1,0 +1,31 @@
+{
+  "questions": [
+    {"q": "Which formula is Ohm's law?",
+     "options": ["V = I × R", "P = V ÷ R", "R = V × I", "I = R ÷ V"],
+     "answer": 0, "explain": "Voltage equals current times resistance."},
+    {"q": "A 12 V battery is connected across a 4 Ω resistor. What current flows?",
+     "options": ["48 A", "3 A", "0.33 A", "8 A"],
+     "answer": 1, "explain": "I = V ÷ R = 12 ÷ 4 = 3 A."},
+    {"q": "Two resistors of 100 Ω and 200 Ω are in series. Total resistance?",
+     "options": ["67 Ω", "100 Ω", "300 Ω", "20000 Ω"],
+     "answer": 2, "explain": "In series resistances add: 100 + 200 = 300 Ω."},
+    {"q": "Two 100 Ω resistors are connected in parallel. Total resistance?",
+     "options": ["200 Ω", "100 Ω", "25 Ω", "50 Ω"],
+     "answer": 3, "explain": "Equal resistors in parallel: R ÷ 2 = 50 Ω."},
+    {"q": "Why must an LED have a series resistor?",
+     "options": ["To make it brighter", "To limit the current", "To change its colour", "To store charge"],
+     "answer": 1, "explain": "An LED has almost no resistance once on, so a resistor limits the current to a safe value."},
+    {"q": "A 5 V supply powers a red LED (2 V, 20 mA). Which resistor is needed?",
+     "options": ["150 Ω", "15 Ω", "1.5 kΩ", "250 Ω"],
+     "answer": 0, "explain": "R = (5 − 2) ÷ 0.02 = 150 Ω."},
+    {"q": "In a parallel circuit, what is the same across every branch?",
+     "options": ["Current", "Resistance", "Voltage", "Power"],
+     "answer": 2, "explain": "All parallel branches are connected to the same two points, so they have the same voltage."},
+    {"q": "On a breadboard, which holes are connected in the main area?",
+     "options": ["The 5 holes in one short column", "The whole row of 30 holes", "Every hole on the board", "Holes diagonal to each other"],
+     "answer": 0, "explain": "Each group of 5 holes (a–e or f–j) in a column is joined underneath."},
+    {"q": "What is a short circuit?",
+     "options": ["A very long wire", "A path with almost zero resistance, so huge current flows", "A circuit with no battery", "A broken wire"],
+     "answer": 1, "explain": "With almost no resistance, I = V ÷ R becomes very large and parts can overheat."}
+  ]
+}
