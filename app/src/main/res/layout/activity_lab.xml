@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <HorizontalScrollView
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:scrollbars="none">
+        <LinearLayout
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:paddingStart="4dp" android:paddingEnd="4dp">
+            <Button android:id="@+id/btnRun"
+                style="@style/Widget.MaterialComponents.Button"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textAllCaps="false" android:text="▶ Run" />
+            <Button android:id="@+id/btnRotate"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textAllCaps="false" android:text="⟳ Rotate" />
+            <Button android:id="@+id/btnValue"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textAllCaps="false" android:text="✎ Value" />
+            <Button android:id="@+id/btnDelete"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textAllCaps="false" android:text="🗑 Delete" />
+            <Button android:id="@+id/btnCheck"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textAllCaps="false" android:text="⚠ Check" />
+            <Button android:id="@+id/btnSave"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                android:textAllCaps="false" android:text="⭐ Save" />
+        </LinearLayout>
+    </HorizontalScrollView>
+
+    <com.circuitcraft.app.sim.SimulatorView
+        android:id="@+id/simView"
+        android:layout_width="match_parent" android:layout_height="0dp"
+        android:layout_weight="1" />
+
+    <TextView android:id="@+id/tvStatus"
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:minLines="2" android:padding="6dp" android:textSize="13sp"
+        android:background="#FFF8E1" />
+
+    <HorizontalScrollView
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:scrollbars="none">
+        <LinearLayout android:id="@+id/paletteRow"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:orientation="horizontal" android:paddingStart="4dp" android:paddingEnd="4dp" />
+    </HorizontalScrollView>
+</LinearLayout>
