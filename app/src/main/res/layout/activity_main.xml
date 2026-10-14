@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="16dp">
+
+        <TextView android:id="@+id/tvOffline"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:background="@color/error_red" android:textColor="@color/white"
+            android:padding="8dp" android:gravity="center"
+            android:text="No internet - quiz uses offline questions" android:visibility="gone" />
+
+        <TextView android:id="@+id/tvWelcome"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="8dp" android:layout_marginBottom="12dp"
+            android:textSize="22sp" android:textStyle="bold" android:textColor="@color/primary" />
+
+        <Button android:id="@+id/btnComponents"
+            android:layout_width="match_parent" android:layout_height="64dp"
+            android:text="🔌  Components Library" />
+        <Button android:id="@+id/btnCalculator"
+            android:layout_width="match_parent" android:layout_height="64dp"
+            android:text="🧮  Ohm's Law &amp; Series/Parallel" />
+        <Button android:id="@+id/btnLab"
+            android:layout_width="match_parent" android:layout_height="64dp"
+            android:text="🔬  Circuit Lab (Simulator)" />
+        <Button android:id="@+id/btnQuiz"
+            android:layout_width="match_parent" android:layout_height="64dp"
+            android:text="📝  Circuit Quiz" />
+        <Button android:id="@+id/btnFavourites"
+            android:layout_width="match_parent" android:layout_height="64dp"
+            android:text="⭐  Favourite Circuits" />
+
+        <Button android:id="@+id/btnHelp"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" android:text="Open electronics textbook (browser)" />
+        <Button android:id="@+id/btnShare"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Share this app" />
+        <Button android:id="@+id/btnLogout"
+            style="@style/Widget.MaterialComponents.Button.TextButton"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Sign out" />
+    </LinearLayout>
+</ScrollView>
