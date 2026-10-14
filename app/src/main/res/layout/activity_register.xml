@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:gravity="center_vertical" android:padding="24dp">
+
+        <TextView
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Create account" android:textSize="28sp" android:textStyle="bold"
+            android:textColor="@color/primary" android:gravity="center" />
+
+        <EditText android:id="@+id/etName"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="24dp" android:hint="Full name"
+            android:inputType="textPersonName" />
+        <EditText android:id="@+id/etEmail"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:hint="Email" android:inputType="textEmailAddress" />
+        <EditText android:id="@+id/etPassword"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:hint="Password (min 6 characters)" android:inputType="textPassword" />
+        <EditText android:id="@+id/etConfirm"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:hint="Confirm password" android:inputType="textPassword" />
+
+        <Button android:id="@+id/btnRegister"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="16dp" android:text="Sign up" />
+        <ProgressBar android:id="@+id/progress"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"
+            android:layout_gravity="center" android:visibility="gone" />
+    </LinearLayout>
+</ScrollView>
