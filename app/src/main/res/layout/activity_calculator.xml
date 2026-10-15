@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent" android:layout_height="match_parent">
+
+    <LinearLayout
+        android:layout_width="match_parent" android:layout_height="wrap_content"
+        android:orientation="vertical" android:padding="16dp">
+
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Ohm's Law  (V = I × R)" android:textSize="22sp" android:textStyle="bold"
+            android:textColor="@color/primary" />
+        <TextView android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="Fill any two boxes and leave the one you want to find empty. Power is shown too (P = V × I)." />
+
+        <EditText android:id="@+id/etV" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:hint="Voltage V (volts)" android:inputType="numberDecimal" />
+        <EditText android:id="@+id/etI" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:hint="Current I (amps)" android:inputType="numberDecimal" />
+        <EditText android:id="@+id/etR" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:hint="Resistance R (ohms)" android:inputType="numberDecimal" />
+        <Button android:id="@+id/btnOhm" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:text="Calculate" />
+        <TextView android:id="@+id/tvOhmResult" android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:padding="8dp" android:textSize="17sp" />
+    </LinearLayout>
+</ScrollView>
