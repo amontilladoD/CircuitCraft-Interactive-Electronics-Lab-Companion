@@ -74,3 +74,24 @@ CircuitCraft empowers students, hobbyists, and engineers to build, simulate, and
 </td>
 </tr>
 </table>
+
+---
+
+## ⚙️ How the Simulator Works
+
+The simulation engine (`CircuitEngine`) runs independently of Android UI dependencies, performing numeric circuit solving using **Modified Nodal Analysis (MNA)**:
+
+```text
+[SimulatorView]  ──(Canvas / Touch Gestures)──>  [CircuitModel]
+       │                                                │
+       └──────────────> [CircuitEngine] <───────────────┘
+```
+
+1. **Topology Discovery (Union-Find):**
+   Breadboard tie-points, power rails, and jumper wires are connected into electrical nets using an efficient disjoint-set (union-find) data structure.
+2. **Matrix Formulation ($A \cdot x = b$):**
+   - **Linear Elements:** Resistors, ideal voltage sources, and switches are stamped directly into the conductance matrix.
+   - **Dynamic Elements (Capacitors):** Modeled using Backward-Euler companion conductance models ($G_{eq} = \frac{C}{\Delta t}$).
+   - **Nonlinear Elements (Diodes, LEDs, BJTs):** Solved iteratively using the **Newton-Raphson method** with Ebers-Moll exponential equations and P-N junction limiting (`pnjlim`) to guarantee numeric convergence.
+3. **Meter Processing:**
+   Voltmeters and ammeters sample node voltages and branch currents over time, automatically distinguishing between DC average values and true RMS (Root Mean Square) for AC signals.
