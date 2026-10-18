@@ -95,3 +95,25 @@ The simulation engine (`CircuitEngine`) runs independently of Android UI depende
    - **Nonlinear Elements (Diodes, LEDs, BJTs):** Solved iteratively using the **Newton-Raphson method** with Ebers-Moll exponential equations and P-N junction limiting (`pnjlim`) to guarantee numeric convergence.
 3. **Meter Processing:**
    Voltmeters and ammeters sample node voltages and branch currents over time, automatically distinguishing between DC average values and true RMS (Root Mean Square) for AC signals.
+
+---
+
+## 🏛️ Android Architecture & Best Practices
+
+CircuitCraft demonstrates a comprehensive, decoupled Android system architecture:
+
+```
+com.circuitcraft.app
+├── 📁 data        # SQLite database (DbHelper), ContentProvider, & Repositories
+├── 📁 logic       # Engineering calculations, Ohm's Law, & Unit conversions
+├── 📁 model       # Data models (ComponentItem, Favourite, QuizQuestion)
+├── 📁 receiver    # Connectivity broadcast receiver (NetworkReceiver)
+├── 📁 service     # Background countdown timer (QuizTimerService)
+├── 📁 sim         # MNA Engine, CircuitModel, Serialization (CircuitIO), & SimulatorView
+└── 📁 ui          # Modern Activities (Lab, Calculator, Quiz, Favourites, Auth)
+```
+
+- **View Binding:** Zero `findViewById` boilerplate; clean null-safe UI binding across all activities.
+- **Service & Broadcast Receiver:** Decoupled background timers and live network state observation.
+- **Content Provider:** SQLite access abstraction for favourite circuit storage.
+- **Custom View:** Custom canvas-rendered interactive workbench handling drag, zoom, and redraw ticks.
