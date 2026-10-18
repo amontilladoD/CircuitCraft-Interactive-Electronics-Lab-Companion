@@ -117,3 +117,30 @@ com.circuitcraft.app
 - **Service & Broadcast Receiver:** Decoupled background timers and live network state observation.
 - **Content Provider:** SQLite access abstraction for favourite circuit storage.
 - **Custom View:** Custom canvas-rendered interactive workbench handling drag, zoom, and redraw ticks.
+
+---
+
+## 📂 Project Structure
+
+```text
+📁 CircuitCraft
+├── 📱 app/
+│   ├── 📜 src/main/AndroidManifest.xml
+│   ├── ☕ src/main/java/com/circuitcraft/app/
+│   ├── 📦 src/main/assets/questions.json
+│   ├── 🎨 src/main/res/
+│   │   ├── 🖼️ drawable/
+│   │   ├── 📐 layout/
+│   │   ├── 📱 mipmap/
+│   │   └── 🎨 values/
+│   └── 🐘 build.gradle                 # Module-level build script
+├── 🐘 gradle/
+│   ├── ⚙️ wrapper/gradle-wrapper.properties
+│   └── 📑 libs.versions.toml           # Modern Gradle version catalog
+├── 🐘 build.gradle                     # Project-level build script
+├── ⚙️ gradle.properties                # Build environment configuration
+├── ⚙️ settings.gradle                  # Root project & module settings
+├── 📄 questions.json                   # Remote quiz dataset
+├── 📄 LICENSE                          # MIT License
+└── 📄 README.md                        # Documentation
+```
