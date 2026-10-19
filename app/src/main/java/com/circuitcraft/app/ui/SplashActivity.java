@@ -60,3 +60,4 @@ public class SplashActivity extends AppCompatActivity {
         set.start();
     }
 }
+
