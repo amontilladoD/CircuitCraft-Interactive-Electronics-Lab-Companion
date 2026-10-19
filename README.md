@@ -3,10 +3,22 @@
 # ⚡ CircuitCraft
 ### *Interactive Electronics Lab Companion*
 
+[![Android](https://img.shields.io/badge/Platform-Android_7.0+_(API_24+)-3DDC84?style=for-the-badge&logo=android&logoColor=white)](https://developer.android.com)
+[![Java](https://img.shields.io/badge/Language-Java_8-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)](https://www.java.com)
+[![Firebase](https://img.shields.io/badge/Cloud-Firebase_Auth_&_Firestore-FFCA28?style=for-the-badge&logo=firebase&logoColor=black)](https://firebase.google.com)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
+
+<br/>
+
 **CircuitCraft** is an interactive virtual electronics laboratory built for Android. It bridges the gap between circuit theory and real-world breadboarding by coupling an intuitive drag-and-drop workspace with a high-performance **Modified Nodal Analysis (MNA)** SPICE-style simulation engine.
 
-</div>
+[Explore Features](#-key-features) • [Simulation Engine](#-how-the-simulator-works) • [Architecture](#-android-architecture--best-practices) • [Getting Started](#-getting-started)
 
+<br/>
+
+---
+
+</div>
 ## 🌟 Overview
 
 CircuitCraft empowers students, hobbyists, and engineers to build, simulate, and debug electrical circuits without burning physical components. Featuring realistic breadboard layout connections, real-time diagnostic checks, engineering calculators, and timed quizzes, it is a complete portable lab companion.
@@ -179,3 +191,11 @@ com.circuitcraft.app
 ## 🛡️ License
 
 This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for complete details.
+
+---
+
+<div align="center">
+
+Crafted with ❤️ for students, educators, and electronics enthusiasts.
+
+</div>
