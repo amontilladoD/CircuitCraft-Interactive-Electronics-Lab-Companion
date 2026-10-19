@@ -144,3 +144,38 @@ com.circuitcraft.app
 ├── 📄 LICENSE                          # MIT License
 └── 📄 README.md                        # Documentation
 ```
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+- **Android Studio** Hedgehog / Iguana (or newer)
+- **JDK:** Java 11 or Java 17
+- **Android SDK:** Compile SDK 33, Minimum SDK 24 (Android 7.0+)
+
+### Setup Instructions
+
+1. **Clone the Repository:**
+   ```bash
+   git clone https://github.com/amontilladoD/CircuitCraft-Interactive-Electronics-Lab-Companion.git
+   ```
+
+2. **Open in Android Studio:**
+   - Launch Android Studio.
+   - Select **File → Open** and select the root directory of this project.
+   - Allow Gradle to sync dependencies automatically.
+
+3. **Configure Firebase (Optional for Authentication & Cloud Sync):**
+   - Add your `google-services.json` file inside the `app/` folder.
+   - In the Firebase Console, enable **Email/Password** authentication and create a **Cloud Firestore** database.
+
+4. **Run the Application:**
+   - Connect an Android device (via USB Debugging) or launch an Android Emulator.
+   - Click **Run ▶** in Android Studio to build and launch CircuitCraft!
+
+---
+
+## 🛡️ License
+
+This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file for complete details.
