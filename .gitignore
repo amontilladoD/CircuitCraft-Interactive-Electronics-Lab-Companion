@@ -9,3 +9,20 @@
 # Firebase configuration
 google-services.json
 **/google-services.json
+
+# Release APKs and build outputs
+/app/release/
+*.apk
+*.aab
+
+# Local properties (SDK path, API keys)
+local.properties
+
+# OS generated files
+Thumbs.db
+*.swp
+*~
+
+# Signing configs
+*.jks
+*.keystore
