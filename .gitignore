@@ -5,3 +5,7 @@
 .DS_Store
 /build/
 /app/build/
+
+# Firebase configuration
+google-services.json
+**/google-services.json
