@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- lighter blues / greens / reds so text stays readable on a dark background -->
+    <color name="primary">#90CAF9</color>
+    <color name="primary_dark">#64B5F6</color>
+    <color name="on_primary">#0B1F33</color>
+    <color name="error_red">#EF9A9A</color>
+    <color name="ok_green">#A5D6A7</color>
+    <color name="status_bg">#3B3523</color>
+</resources>
