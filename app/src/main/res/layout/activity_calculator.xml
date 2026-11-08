@@ -21,7 +21,7 @@
             android:hint="Resistance R (ohms)" android:inputType="numberDecimal" />
         <Button android:id="@+id/btnOhm" android:layout_width="match_parent" android:layout_height="wrap_content"
             android:text="Calculate" />
-        <TextView android:id="@+id/tvOhmResult" android:layout_width="match_parent" android:layout_height="wrap_content"
+        <TextView android:id="@+id/tvOhmResult" android:freezesText="true" android:layout_width="match_parent" android:layout_height="wrap_content"
             android:padding="8dp" android:textSize="17sp" />
     </LinearLayout>
 </ScrollView>

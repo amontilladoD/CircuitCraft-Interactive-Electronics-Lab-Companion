@@ -8,9 +8,16 @@
 
         <TextView android:id="@+id/tvOffline"
             android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:background="@color/error_red" android:textColor="@color/white"
+            android:background="@color/banner_red" android:textColor="@color/white"
             android:padding="8dp" android:gravity="center"
             android:text="No internet - quiz uses offline questions" android:visibility="gone" />
+
+        <!-- shown for low battery / airplane mode (system broadcasts) -->
+        <TextView android:id="@+id/tvAlert"
+            android:layout_width="match_parent" android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:background="@color/accent" android:textColor="@color/white"
+            android:padding="8dp" android:gravity="center" android:visibility="gone" />
 
         <TextView android:id="@+id/tvWelcome"
             android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -22,13 +29,16 @@
             android:text="🔌  Components Library" />
         <Button android:id="@+id/btnCalculator"
             android:layout_width="match_parent" android:layout_height="64dp"
-            android:text="🧮  Ohm's Law &amp; Series/Parallel" />
+            android:text="🧮  Ohm's Law Calculator" />
         <Button android:id="@+id/btnLab"
             android:layout_width="match_parent" android:layout_height="64dp"
             android:text="🔬  Circuit Lab (Simulator)" />
         <Button android:id="@+id/btnQuiz"
             android:layout_width="match_parent" android:layout_height="64dp"
             android:text="📝  Circuit Quiz" />
+        <Button android:id="@+id/btnLeaderboard"
+            android:layout_width="match_parent" android:layout_height="64dp"
+            android:text="🏆  Leaderboard" />
         <Button android:id="@+id/btnFavourites"
             android:layout_width="match_parent" android:layout_height="64dp"
             android:text="⭐  Favourite Circuits" />
@@ -40,7 +50,7 @@
         <Button android:id="@+id/btnShare"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"
             android:layout_width="match_parent" android:layout_height="wrap_content"
-            android:text="Share this app" />
+            android:text="📲  Share this app (APK + GitHub)" />
         <Button android:id="@+id/btnLogout"
             style="@style/Widget.MaterialComponents.Button.TextButton"
             android:layout_width="match_parent" android:layout_height="wrap_content"
