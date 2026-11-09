@@ -29,6 +29,9 @@ public class ComponentRepository {
         l.add(new ComponentItem("🔺", "NPN Transistor", "Semiconductor",
                 "An electronic switch/amplifier. A small base current (B) controls a large collector current (C → E). Pins: C, B, E. Needs about 0.7 V between B and E.",
                 "Forgetting the base resistor can destroy it; mixing up C, B, E stops it working."));
+        l.add(new ComponentItem("🔻", "PNP Transistor", "Semiconductor",
+                "The opposite of the NPN: its emitter (E) goes to the + side and it turns ON when the base (B) is pulled LOW (about 0.7 V below the emitter). Current flows from E to C. Typical use: a 'high-side' switch that feeds a load from the + supply.",
+                "Wiring it like an NPN (emitter to ground) - a PNP needs the emitter on the + supply and the load between the collector and ground."));
         l.add(new ComponentItem("Ⓐ", "Ammeter", "Meter",
                 "Measures current in amps. It has almost zero resistance, so you place it IN SERIES: break the wire and put the ammeter in the gap.",
                 "Putting an ammeter across a battery (in parallel) is a short circuit."));
@@ -44,7 +47,7 @@ public class ComponentRepository {
         l.add(new ComponentItem("&", "AND gate", "Logic IC",
                 "Output Y is HIGH (5 V) only when A AND B are both HIGH. Inputs above 2.5 V count as 1. Unconnected inputs read as 0.",
                 "Leaving an input floating - tie it to + (1) or - (0) through a wire or switch."));
-        l.add(new ComponentItem("≥", "OR gate", "Logic IC",
+        l.add(new ComponentItem("≥1", "OR gate", "Logic IC",
                 "Output Y is HIGH when A OR B (or both) is HIGH.",
                 "Mixing up inputs and output pins - A and B are inputs, Y is the output."));
         l.add(new ComponentItem("⊼", "NAND gate", "Logic IC",
@@ -65,6 +68,9 @@ public class ComponentRepository {
         l.add(new ComponentItem("⏯", "D Flip-Flop IC", "Logic IC",
                 "Memory cell: on the rising edge of the clock input (CK) the output Q copies input D and holds it. Q̅ is the opposite of Q. Drive CK with a switch or an AC source.",
                 "Changing D while CK is steady does nothing - only the clock edge stores the value."));
+        l.add(new ComponentItem("🕒", "Clock (for the flip-flop)", "Source",
+                "A square-wave generator: OUT swings between 0 V and 5 V, 50 % of the time each. Set its frequency with Value (default 1 Hz, up to 1 kHz). Wire OUT to the flip-flop's CK pin. Connect Q̅ back to D and the flip-flop toggles on every clock tick - a divide-by-2 counter. GND is the 0 V reference when you use no battery.",
+                "Forgetting to connect OUT to CK, or setting a frequency so high (over 1 kHz) that the simulator cannot follow it."));
         l.add(new ComponentItem("🧱", "Breadboard", "Prototyping",
                 "A solderless board. The 5 holes in each short column (a-e or f-j) are connected; the top and bottom rows are power rails that run the whole length. Push legs into holes - they snap to the grid.",
                 "Putting both legs of a part in the same 5-hole column shorts it out."));

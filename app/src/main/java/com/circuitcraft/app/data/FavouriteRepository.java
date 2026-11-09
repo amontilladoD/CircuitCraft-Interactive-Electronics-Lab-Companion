@@ -13,6 +13,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class FavouriteRepository {
 
     public static long save(Context ctx, Favourite f) {
@@ -26,6 +27,7 @@ public class FavouriteRepository {
         if (uri == null) return -1;
         f.id = ContentUris.parseId(uri);
 
+        // mirror to the cloud
         FirebaseFirestore.getInstance().collection("users").document(f.owner)
                 .collection("favourites").document(String.valueOf(f.id)).set(f.toMap());
         return f.id;

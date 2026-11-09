@@ -12,6 +12,7 @@ import android.text.TextUtils;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+
 public class FavouriteProvider extends ContentProvider {
     public static final String AUTHORITY = "com.circuitcraft.app.provider";
     public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/favourites");
