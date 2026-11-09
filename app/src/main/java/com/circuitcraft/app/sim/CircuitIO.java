@@ -3,6 +3,7 @@ package com.circuitcraft.app.sim;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+
 public class CircuitIO {
 
     public static String toJson(CircuitModel m) {
@@ -26,6 +27,7 @@ public class CircuitIO {
             return "{\"parts\":[]}";
         }
     }
+
 
     public static CircuitModel fromJson(String json) {
         CircuitModel m = new CircuitModel();

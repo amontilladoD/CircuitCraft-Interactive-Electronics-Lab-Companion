@@ -1,6 +1,7 @@
 package com.circuitcraft.app.sim;
 
 import android.content.Context;
+import android.content.res.Configuration;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.DashPathEffect;
@@ -14,8 +15,10 @@ import android.view.View;
 
 import com.circuitcraft.app.logic.Units;
 
+
 public class SimulatorView extends View {
-    public static final int WORLD_W = 460, WORLD_H = 640, GRID = CircuitModel.GRID;
+    public static final int WORLD_W = 900, WORLD_H = 1300, GRID = CircuitModel.GRID;
+    private static final int BOARD_W = 460, BOARD_H = 440;   // area shown first: the breadboard
 
     public interface Listener {
         void onSelectionChanged(Part selected);
@@ -26,7 +29,8 @@ public class SimulatorView extends View {
     private Part selected;
     private Listener listener;
 
-    private float scale = 1f, offX = 0f, offY = 0f, fitScale = 1f;
+    private float scale = 1f, offX = 0f, offY = 0f, fitScale = 1f, minScale = 0.3f, maxScale = 4f;
+    private boolean overview = false;
     private final ScaleGestureDetector scaleDetector;
 
     private final Paint line = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -63,17 +67,20 @@ public class SimulatorView extends View {
         scaleDetector = new ScaleGestureDetector(c, new ScaleGestureDetector.SimpleOnScaleGestureListener() {
             @Override
             public boolean onScale(ScaleGestureDetector d) {
-                float ns = Math.max(fitScale * 0.8f, Math.min(fitScale * 4f, scale * d.getScaleFactor()));
+                float ns = Math.max(minScale, Math.min(maxScale, scale * d.getScaleFactor()));
                 float f = ns / scale;
                 offX = d.getFocusX() - (d.getFocusX() - offX) * f;
                 offY = d.getFocusY() - (d.getFocusY() - offY) * f;
                 scale = ns;
+                overview = false;
+                clampPan();
                 invalidate();
                 return true;
             }
         });
     }
 
+    // ------------------------------------------------------------------ public API
     public void setModel(CircuitModel m) {
         model = m;
         engine = new CircuitEngine(m);
@@ -94,12 +101,43 @@ public class SimulatorView extends View {
 
     @Override
     protected void onSizeChanged(int w, int h, int ow, int oh) {
-        fitScale = Math.min(w / (float) WORLD_W, h / (float) WORLD_H);
-        scale = fitScale;
-        offX = (w - WORLD_W * scale) / 2f;
-        offY = 0;
+        fitScale = Math.min(w / (float) BOARD_W, h / (float) BOARD_H);   // whole breadboard visible
+        minScale = Math.min(w / (float) WORLD_W, h / (float) WORLD_H);   // whole workbench visible
+        maxScale = fitScale * 4f;
+        overview = false;
+        showBoard();
     }
 
+    private void showBoard() {
+        scale = fitScale;
+        offX = (getWidth() - BOARD_W * scale) / 2f;
+        offY = 0;
+        clampPan();
+    }
+
+    /** Toggle between "breadboard" view and "whole workbench" view (the 🔍 View button). */
+    public void toggleOverview() {
+        if (getWidth() == 0) return;
+        if (!overview) {
+            scale = minScale;
+            offX = 0;
+            offY = 0;
+            clampPan();
+        } else {
+            showBoard();
+        }
+        overview = !overview;
+        invalidate();
+    }
+
+    /** Keep the workbench on screen while panning. */
+    private void clampPan() {
+        float sw = WORLD_W * scale, sh = WORLD_H * scale;
+        offX = sw <= getWidth() ? (getWidth() - sw) / 2f : Math.max(getWidth() - sw, Math.min(0, offX));
+        offY = sh <= getHeight() ? (getHeight() - sh) / 2f : Math.max(getHeight() - sh, Math.min(0, offY));
+    }
+
+    // ------------------------------------------------------------------ touch
     @Override
     public boolean onTouchEvent(MotionEvent e) {
         scaleDetector.onTouchEvent(e);
@@ -124,7 +162,7 @@ public class SimulatorView extends View {
                 return true;
             case MotionEvent.ACTION_UP:
                 if (!moved && touched != null && touched.type == PartType.SWITCH) {
-                    touched.mode = touched.mode == 1 ? 0 : 1;      
+                    touched.mode = touched.mode == 1 ? 0 : 1;      // tap a switch to flip it
                     invalidate();
                 }
                 dragMode = NONE;
@@ -140,7 +178,7 @@ public class SimulatorView extends View {
     private void hit(float wx, float wy) {
         touched = null;
         dragMode = NONE;
-        
+        // 1) jumper wires are drawn on top, so test them first
         for (int i = model.parts.size() - 1; i >= 0; i--) {
             Part p = model.parts.get(i);
             if (p.type != PartType.JUMPER) continue;
@@ -155,7 +193,7 @@ public class SimulatorView extends View {
                 return;
             }
         }
-        
+        // 2) other parts
         for (int i = model.parts.size() - 1; i >= 0; i--) {
             Part p = model.parts.get(i);
             if (p.type == PartType.JUMPER || p.type == PartType.BREADBOARD) continue;
@@ -166,7 +204,7 @@ public class SimulatorView extends View {
                 return;
             }
         }
-        
+        // 3) the breadboard (selectable but fixed - dragging it pans the view)
         for (Part p : model.parts) {
             if (p.type == PartType.BREADBOARD && p.contains(wx, wy)) { start(p, PAN); return; }
         }
@@ -185,6 +223,7 @@ public class SimulatorView extends View {
             case PAN:
                 offX += sx - lastX;
                 offY += sy - lastY;
+                clampPan();
                 break;
             case PART: {
                 int nx = snapX(wx - grabDx), ny = snapY(wy - grabDy);
@@ -237,19 +276,26 @@ public class SimulatorView extends View {
         return (float) Math.hypot(px - (x1 + t * dx), py - (y1 + t * dy));
     }
 
+    // ------------------------------------------------------------------ drawing
     @Override
     protected void onDraw(Canvas c) {
         super.onDraw(c);
-        c.drawColor(0xFFECEFF1);
+        boolean night = (getResources().getConfiguration().uiMode & Configuration.UI_MODE_NIGHT_MASK)
+                == Configuration.UI_MODE_NIGHT_YES;
+        c.drawColor(night ? 0xFF121212 : 0xFFECEFF1);
         c.save();
         c.translate(offX, offY);
         c.scale(scale, scale);
 
+        // workspace sheet with a dotted grid
         fill.setColor(Color.WHITE);
         c.drawRect(0, 0, WORLD_W, WORLD_H, fill);
         fill.setColor(0xFFCFD8DC);
-        for (int gx = 0; gx <= WORLD_W; gx += GRID)
-            for (int gy = 440; gy <= WORLD_H; gy += GRID) c.drawCircle(gx, gy, 1f, fill);
+        float vx0 = -offX / scale, vy0 = -offY / scale;                 // only the visible grid dots
+        float vx1 = vx0 + getWidth() / scale, vy1 = vy0 + getHeight() / scale;
+        for (int gx = Math.max(0, (int) (vx0 / GRID) * GRID); gx <= Math.min(WORLD_W, vx1); gx += GRID)
+            for (int gy = Math.max(0, (int) (vy0 / GRID) * GRID); gy <= Math.min(WORLD_H, vy1); gy += GRID)
+                c.drawCircle(gx, gy, 1.2f, fill);
 
         for (Part p : model.parts) if (p.type == PartType.BREADBOARD) drawBreadboard(c, p);
         for (Part p : model.parts)
@@ -269,7 +315,7 @@ public class SimulatorView extends View {
         line.setColor(0xFF263238);
         line.setStrokeWidth(2.5f);
         fill.setColor(0xFFD7CCA8);
-        c.drawRect(p.x - 20, p.y + 150, p.x + 400, p.y + 170, fill);     
+        c.drawRect(p.x - 20, p.y + 150, p.x + 400, p.y + 170, fill);     // centre channel
 
         int[] railY = {0, 20, 300, 320};
         int[] rows = {60, 80, 100, 120, 140, 180, 200, 220, 240, 260};
@@ -362,7 +408,7 @@ public class SimulatorView extends View {
                 c.drawPath(tri, fill);
                 c.drawPath(tri, line);
                 c.drawLine(30, -11, 30, 11, line);
-                if (t == PartType.LED) {                         
+                if (t == PartType.LED) {                         // light rays
                     line.setStrokeWidth(1.5f);
                     c.drawLine(22, -13, 30, -22, line);
                     c.drawLine(28, -10, 36, -19, line);
@@ -415,7 +461,8 @@ public class SimulatorView extends View {
                 else c.drawLine(8, 0, 30, -14, line);
                 line.setStrokeWidth(2.5f);
                 break;
-            case TRANSISTOR: {
+            case TRANSISTOR:
+            case PNP: {
                 for (int[] pn : t.pins) c.drawLine(pn[0], pn[1], pn[0], -6, line);
                 Path d = new Path();
                 d.moveTo(0, -6);
@@ -423,19 +470,41 @@ public class SimulatorView extends View {
                 d.quadTo(20, -50, 40, -28);
                 d.lineTo(40, -6);
                 d.close();
-                fill.setColor(0xFF455A64);
+                fill.setColor(t == PartType.PNP ? 0xFF6D4C41 : 0xFF455A64);
                 c.drawPath(d, fill);
                 c.drawPath(d, line);
                 break;
             }
-            default: {   
+            case CLOCK: {
+                for (int[] pn : t.pins) c.drawLine(pn[0], pn[1], pn[0], -6, line);
+                RectF chip = new RectF(t.bl, t.bt, t.br, -6);
+                fill.setColor(0xFF4A148C);
+                c.drawRoundRect(chip, 4, 4, fill);
+                c.drawRoundRect(chip, 4, 4, line);
+                Path wave = new Path();                      // square-wave symbol
+                wave.moveTo(0, -14);
+                wave.lineTo(5, -14);
+                wave.lineTo(5, -32);
+                wave.lineTo(10, -32);
+                wave.lineTo(10, -14);
+                wave.lineTo(15, -14);
+                wave.lineTo(15, -32);
+                wave.lineTo(20, -32);
+                line.setColor(Color.WHITE);
+                line.setStrokeWidth(2f);
+                c.drawPath(wave, line);
+                line.setColor(0xFF263238);
+                line.setStrokeWidth(2.5f);
+                break;
+            }
+            default: {   // logic ICs
                 for (int[] pn : t.pins) c.drawLine(pn[0], pn[1], pn[0], -6, line);
                 RectF chip = new RectF(t.bl, t.bt, t.br, -6);
                 fill.setColor(0xFF37474F);
                 c.drawRoundRect(chip, 4, 4, fill);
                 c.drawRoundRect(chip, 4, 4, line);
                 fill.setColor(0xFFB0BEC5);
-                c.drawCircle(t.bl + 8, -14, 2.5f, fill);       
+                c.drawCircle(t.bl + 8, -14, 2.5f, fill);       // pin-1 dot
                 break;
             }
         }
@@ -443,6 +512,7 @@ public class SimulatorView extends View {
         if (p == selected) c.drawRect(t.bl - 5, t.bt - 5, t.br + 5, t.bb + 5, selPaint);
         c.restore();
 
+        // ---- things that must stay upright (drawn without rotation) ----
         for (int i = 0; i < p.pinCount(); i++) {
             int[] w = p.pin(i);
             fill.setColor(0xFFEF6C00);
@@ -454,24 +524,26 @@ public class SimulatorView extends View {
     private void drawTexts(Canvas c, Part p) {
         PartType t = p.type;
         text.setTextSize(11f);
-        
-        boolean names = t == PartType.TRANSISTOR || t.isLogic() || t == PartType.LED || t == PartType.DIODE
+        // pin names
+        boolean names = chipLike(t) || t == PartType.LED || t == PartType.DIODE
                 || t == PartType.BATTERY || t == PartType.AC_SOURCE || t == PartType.AMMETER
                 || t == PartType.VOLTMETER || t == PartType.MULTIMETER || t == PartType.CAPACITOR;
         if (names) {
             text.setColor(0xFF455A64);
-            boolean below = t == PartType.TRANSISTOR || t.isLogic();
+            boolean below = chipLike(t);
             for (int i = 0; i < p.pinCount(); i++) {
                 int[] w = p.pin(i);
                 c.drawText(t.pinNames[i], w[0], w[1] + (below ? 17 : -9), text);
             }
         }
-        
+        // centre text inside bodies
         text.setTextSize(12f);
-        if (t.isLogic() || t == PartType.TRANSISTOR) {
-            float[] ctr = p.toWorld((t.bl + t.br) / 2f, t == PartType.TRANSISTOR ? -22 : -24);
+        if (t.isLogic() || t == PartType.TRANSISTOR || t == PartType.PNP) {
+            boolean bjt = t == PartType.TRANSISTOR || t == PartType.PNP;
+            float[] ctr = p.toWorld((t.bl + t.br) / 2f, bjt ? -22 : -24);
             text.setColor(Color.WHITE);
-            String name = t == PartType.TRANSISTOR ? "NPN" : (t == PartType.FLIPFLOP ? "D-FF" : t.name());
+            String name = t == PartType.TRANSISTOR ? "NPN" : (t == PartType.PNP ? "PNP"
+                    : (t == PartType.FLIPFLOP ? "D-FF" : t.name()));
             c.drawText(name, ctr[0], ctr[1] + 4, text);
         } else if (t == PartType.AMMETER || t == PartType.VOLTMETER) {
             float[] ctr = p.toWorld(20, 0);
@@ -480,11 +552,11 @@ public class SimulatorView extends View {
             c.drawText(t == PartType.AMMETER ? "A" : "V", ctr[0], ctr[1] + 6, text);
             text.setTextSize(12f);
         }
-        
+        // value / reading under the part
         String info = infoText(p);
         if (!info.isEmpty()) {
             float[] under = p.toWorld((t.bl + t.br) / 2f, t == PartType.MULTIMETER ? 0 : Math.max(t.bb, 0) + 16);
-            if (t == PartType.TRANSISTOR || t.isLogic()) under = p.toWorld((t.bl + t.br) / 2f, 34);
+            if (chipLike(t)) under = p.toWorld((t.bl + t.br) / 2f, 34);
             boolean meter = t == PartType.AMMETER || t == PartType.VOLTMETER || t == PartType.MULTIMETER;
             text.setColor(meter ? 0xFF1B5E20 : 0xFF263238);
             if (t == PartType.MULTIMETER) {
@@ -503,6 +575,11 @@ public class SimulatorView extends View {
         text.setTextSize(13f);
     }
 
+
+    private static boolean chipLike(PartType t) {
+        return t == PartType.TRANSISTOR || t == PartType.PNP || t == PartType.CLOCK || t.isLogic();
+    }
+
     private String infoText(Part p) {
         switch (p.type) {
             case RESISTOR:  return Units.eng(p.value, "Ω");
@@ -510,6 +587,7 @@ public class SimulatorView extends View {
             case BATTERY:   return Units.eng(p.value, "V");
             case AC_SOURCE: return Units.eng(p.value, "V") + "pk " + Math.round(p.value2) + "Hz";
             case SWITCH:    return p.mode == 1 ? "ON" : "OFF";
+            case CLOCK:     return Units.eng(p.value, "Hz");
             case LED:       return p.burnt ? "BURNT" : "";
             case AMMETER:
             case VOLTMETER:

@@ -1,5 +1,6 @@
 package com.circuitcraft.app.sim;
 
+
 public enum PartType {
     BREADBOARD("Breadboard", "🧱", new int[][]{}, "", -20, -20, 400, 340),
     JUMPER("Jumper wire", "➰", new int[][]{{0, 0}, {60, 0}}, "1,2", 0, 0, 0, 0),
@@ -14,6 +15,7 @@ public enum PartType {
     MULTIMETER("Multimeter", "📟", new int[][]{{0, 0}, {60, 0}}, "+,-", 0, -24, 60, 24),
     SWITCH("Switch", "🔘", new int[][]{{0, 0}, {40, 0}}, "1,2", 4, -16, 36, 10),
     TRANSISTOR("NPN Transistor", "🔺", new int[][]{{0, 0}, {20, 0}, {40, 0}}, "C,B,E", -2, -42, 42, -4),
+    PNP("PNP Transistor", "🔻", new int[][]{{0, 0}, {20, 0}, {40, 0}}, "C,B,E", -2, -42, 42, -4),
     AND("AND gate", "&", new int[][]{{0, 0}, {20, 0}, {40, 0}}, "A,B,Y", -4, -48, 44, -4),
     OR("OR gate", "≥1", new int[][]{{0, 0}, {20, 0}, {40, 0}}, "A,B,Y", -4, -48, 44, -4),
     NAND("NAND gate", "⊼", new int[][]{{0, 0}, {20, 0}, {40, 0}}, "A,B,Y", -4, -48, 44, -4),
@@ -21,7 +23,8 @@ public enum PartType {
     XOR("XOR gate", "⊕", new int[][]{{0, 0}, {20, 0}, {40, 0}}, "A,B,Y", -4, -48, 44, -4),
     XNOR("XNOR gate", "⊙", new int[][]{{0, 0}, {20, 0}, {40, 0}}, "A,B,Y", -4, -48, 44, -4),
     NOT("NOT gate", "¬", new int[][]{{0, 0}, {20, 0}}, "A,Y", -4, -48, 24, -4),
-    FLIPFLOP("D Flip-Flop IC", "⏯", new int[][]{{0, 0}, {20, 0}, {40, 0}, {60, 0}}, "D,CK,Q,Q̅", -4, -48, 64, -4);
+    FLIPFLOP("D Flip-Flop IC", "⏯", new int[][]{{0, 0}, {20, 0}, {40, 0}, {60, 0}}, "D,CK,Q,Q̅", -4, -48, 64, -4),
+    CLOCK("Clock", "🕒", new int[][]{{0, 0}, {20, 0}}, "OUT,GND", -4, -44, 24, -4);
 
     public final String label, emoji;
     public final int[][] pins;
@@ -46,9 +49,11 @@ public enum PartType {
 
     public boolean isLogic() { return isGate() || this == FLIPFLOP; }
 
+
     public boolean isRequiredPin(int i) {
-        if (isGate()) return i < pins.length - 1;     
-        if (this == FLIPFLOP) return i < 2;           
+        if (isGate()) return i < pins.length - 1;     // inputs only
+        if (this == FLIPFLOP) return i < 2;           // D and CK
+        if (this == CLOCK) return i == 0;             // only OUT must be connected
         return true;
     }
 }

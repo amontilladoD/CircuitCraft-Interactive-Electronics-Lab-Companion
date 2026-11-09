@@ -5,18 +5,20 @@ import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+
 public class CircuitModel {
     public static final int GRID = 20;
     public static final int BOARD_X = 40, BOARD_Y = 60;
 
     public final List<Part> parts = new ArrayList<>();
-    private int slot = 0;
+
 
     public static CircuitModel withBreadboard() {
         CircuitModel m = new CircuitModel();
         m.add(PartType.BREADBOARD);
         return m;
     }
+
 
     public Part add(PartType t) {
         if (t == PartType.BREADBOARD) {
@@ -25,12 +27,30 @@ public class CircuitModel {
             parts.add(0, bb);
             return bb;
         }
-        int sx = 40 + (slot % 3) * 140 + (slot / 6) * 20;
-        int sy = 500 + ((slot / 3) % 2) * 80;
-        slot++;
-        Part p = new Part(t, sx, sy);
+        int[] spot = freeSpot();
+        Part p = new Part(t, spot[0], spot[1]);
         parts.add(p);
         return p;
+    }
+
+
+    private int[] freeSpot() {
+        for (int y = 500; y <= 1220; y += 80)
+            for (int x = 40; x <= 740; x += 140)
+                if (isFree(x, y)) return new int[]{x, y};
+        for (int y = 80; y <= 380; y += 80)
+            for (int x = 500; x <= 780; x += 140)
+                if (isFree(x, y)) return new int[]{x, y};
+        return new int[]{40, 500};
+    }
+
+    private boolean isFree(int cx, int cy) {
+        for (Part q : parts) {
+            if (q.type == PartType.BREADBOARD) continue;
+            if (Math.abs(q.x - cx) < 130 && Math.abs(q.y - cy) < 70) return false;
+            if (q.type == PartType.JUMPER && Math.abs(q.x2 - cx) < 130 && Math.abs(q.y2 - cy) < 70) return false;
+        }
+        return true;
     }
 
     public void remove(Part p) { parts.remove(p); }
@@ -39,6 +59,7 @@ public class CircuitModel {
         for (Part p : parts) if (p.type != PartType.BREADBOARD) return true;
         return false;
     }
+
 
     public String labelOf(Part p) {
         if (p.type == PartType.BREADBOARD) return "Breadboard";
@@ -66,4 +87,3 @@ public class CircuitModel {
         return sb.toString();
     }
 }
-

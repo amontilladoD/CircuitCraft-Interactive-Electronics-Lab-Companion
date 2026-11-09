@@ -7,14 +7,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 public class CircuitEngine {
     public static final double DT = 1e-4;
     private static final int STEPS_PER_TICK = 300;
     private static final int WINDOW = 1000;
 
     private static final double GMIN = 1e-12;
-    private static final double SRC_R = 0.1;            
-    private static final double METER_G = 1e-7;         
+    private static final double SRC_R = 0.1;            // internal resistance of sources
+    private static final double METER_G = 1e-7;         // voltmeter = 10 Mohm
     private static final double LOGIC_HIGH = 5.0, LOGIC_TH = 2.5, LOGIC_G = 0.02, LOGIC_IN_G = 1e-6;
 
     private static final double IS_DIODE = 1e-14, NVT_DIODE = 0.02585;
@@ -34,9 +35,11 @@ public class CircuitEngine {
     private final List<String> staticWarnings = new ArrayList<>();
     private final List<String> liveWarnings = new ArrayList<>();
 
+    // union-find over grid points
     private final ArrayList<Integer> uf = new ArrayList<>();
     private final HashMap<Long, Integer> ptIds = new HashMap<>();
 
+    // netlist
     private int nNodes, size;
     private Part[] devs = new Part[0];
     private int[][] nodes = new int[0][];
@@ -52,6 +55,7 @@ public class CircuitEngine {
 
     public CircuitEngine(CircuitModel model) { this.model = model; }
 
+    // ------------------------------------------------------------------ public API
     public void markDirty() { dirty = true; }
     public boolean isRunning() { return running; }
     public double getTime() { return time; }
@@ -71,12 +75,14 @@ public class CircuitEngine {
         }
     }
 
+
     public void tick() {
         if (!running) return;
         if (dirty) rebuild();
         if (!hasGround) return;
         for (int i = 0; i < STEPS_PER_TICK; i++) step();
     }
+
 
     public List<String> diagnose() {
         if (dirty) rebuild();
@@ -87,6 +93,7 @@ public class CircuitEngine {
 
     public int warningCount() { return staticWarnings.size() + liveWarnings.size(); }
 
+    // ------------------------------------------------------------------ union-find
     private int newId() {
         uf.add(uf.size());
         return uf.size() - 1;
@@ -115,6 +122,7 @@ public class CircuitEngine {
         if (ra != rc) uf.set(ra, rc);
     }
 
+    // ------------------------------------------------------------------ netlist
     private void rebuild() {
         dirty = false;
         staticWarnings.clear();
@@ -122,6 +130,7 @@ public class CircuitEngine {
         uf.clear();
         ptIds.clear();
 
+        // 1) breadboard strips
         for (Part p : model.parts) {
             if (p.type != PartType.BREADBOARD) continue;
             int[] railG = new int[RAIL_Y.length];
@@ -134,11 +143,11 @@ public class CircuitEngine {
                 for (int r : ROW_BOT) union(idOf(hx, p.y + r), gBot);
             }
         }
-        
+        // 2) jumper wires
         for (Part p : model.parts) {
             if (p.type == PartType.JUMPER) union(idOf(p.x, p.y), idOf(p.x2, p.y2));
         }
-        
+        // 3) devices
         List<Part> list = new ArrayList<>();
         for (Part p : model.parts) {
             if (p.type != PartType.BREADBOARD && p.type != PartType.JUMPER) list.add(p);
@@ -153,15 +162,19 @@ public class CircuitEngine {
             }
         }
 
+        // 4) ground = negative pin of first DC battery, else of first AC source
         int groundRoot = -1;
         for (int i = 0; i < devs.length && groundRoot < 0; i++)
             if (devs[i].type == PartType.BATTERY) groundRoot = find(pinIds[i][1]);
         for (int i = 0; i < devs.length && groundRoot < 0; i++)
             if (devs[i].type == PartType.AC_SOURCE) groundRoot = find(pinIds[i][1]);
 
+        for (int i = 0; i < devs.length && groundRoot < 0; i++)      // a lone clock uses its GND pin
+            if (devs[i].type == PartType.CLOCK) groundRoot = find(pinIds[i][1]);
+
         hasGround = groundRoot >= 0;
         if (!hasGround) {
-            staticWarnings.add("No power source: add a DC Battery or an AC Source.");
+            staticWarnings.add("No power source: add a DC Battery, an AC Source or a Clock.");
             nodes = new int[devs.length][];
             nNodes = 1;
             size = 0;
@@ -169,6 +182,7 @@ public class CircuitEngine {
             return;
         }
 
+        // 5) number the nets
         Map<Integer, Integer> rootToNode = new HashMap<>();
         rootToNode.put(groundRoot, 0);
         Map<Integer, Integer> rootCount = new HashMap<>();
@@ -189,6 +203,7 @@ public class CircuitEngine {
         }
         nNodes = rootToNode.size();
 
+        // 6) unconnected pins
         for (int i = 0; i < devs.length; i++) {
             for (int k = 0; k < pinIds[i].length; k++) {
                 if (!devs[i].type.isRequiredPin(k)) continue;
@@ -199,6 +214,7 @@ public class CircuitEngine {
             }
         }
 
+        // 7) extra unknowns for ammeters
         extraIdx = new int[devs.length];
         int extra = 0;
         nonlinear = false;
@@ -206,7 +222,7 @@ public class CircuitEngine {
             extraIdx[i] = -1;
             if (isAmmeter(devs[i])) extraIdx[i] = nNodes - 1 + extra++;
             PartType t = devs[i].type;
-            if (t == PartType.DIODE || t == PartType.LED || t == PartType.TRANSISTOR) nonlinear = true;
+            if (t == PartType.DIODE || t == PartType.LED || t == PartType.TRANSISTOR || t == PartType.PNP) nonlinear = true;
         }
         size = nNodes - 1 + extra;
         A = new double[size][size];
@@ -247,8 +263,9 @@ public class CircuitEngine {
         return p.type == PartType.AMMETER || (p.type == PartType.MULTIMETER && p.mode == 1);
     }
 
+    //one time step
     private void step() {
-        
+        // digital parts look at the previous voltages
         for (int i = 0; i < devs.length; i++) {
             PartType t = devs[i].type;
             int[] nd = nodes[i];
@@ -256,9 +273,11 @@ public class CircuitEngine {
                 boolean a = vOld[nd[0]] > LOGIC_TH;
                 boolean c = t != PartType.NOT && vOld[nd[1]] > LOGIC_TH;
                 outState[i] = evalGate(t, a, c);
+            } else if (t == PartType.CLOCK) {
+                outState[i] = ((time * devs[i].value) % 1.0) >= 0.5;   // 50 % duty square wave, starts LOW
             } else if (t == PartType.FLIPFLOP) {
                 boolean clk = vOld[nd[1]] > LOGIC_TH;
-                if (clk && !clkPrev[i]) outState[i] = vOld[nd[0]] > LOGIC_TH;   
+                if (clk && !clkPrev[i]) outState[i] = vOld[nd[0]] > LOGIC_TH;   // rising edge: Q = D
                 clkPrev[i] = clk;
             }
         }
@@ -296,10 +315,11 @@ public class CircuitEngine {
             case NOR:  return !(a || c);
             case XOR:  return a ^ c;
             case XNOR: return !(a ^ c);
-            default:   return !a;      
+            default:   return !a;      // NOT
         }
     }
 
+    // stamping helpers
     private void add(int r, int c, double v) {
         if (r > 0 && c > 0) A[r - 1][c - 1] += v;
     }
@@ -355,7 +375,13 @@ public class CircuitEngine {
                     if (!p.burnt) stampDiode(i, nd[0], nd[1], IS_LED, NVT_LED);
                     break;
                 case TRANSISTOR:
-                    stampBjt(i, nd[0], nd[1], nd[2]);
+                    stampBjt(i, nd[0], nd[1], nd[2], false);
+                    break;
+                case PNP:
+                    stampBjt(i, nd[0], nd[1], nd[2], true);
+                    break;
+                case CLOCK:
+                    stampOut(nd[0], outState[i]);
                     break;
                 case VOLTMETER:
                     stampG(nd[0], nd[1], METER_G);
@@ -396,6 +422,7 @@ public class CircuitEngine {
         if (m > 0) { A[m - 1][k] -= 1; A[k][m - 1] -= 1; }
     }
 
+    /** SPICE-style junction voltage limiting: keeps Newton from overshooting the exponential. */
     private static double pnjlim(double vnew, double vold, double vt, double vcrit) {
         if (vnew > vcrit && Math.abs(vnew - vold) > 2 * vt) {
             if (vold > 0) {
@@ -421,10 +448,16 @@ public class CircuitEngine {
         addB(k, ieq);
     }
 
-    private void stampBjt(int i, int c, int bn, int e) {
+    /**
+     * Ebers-Moll bipolar transistor. A PNP is an NPN with every voltage and current reversed:
+     * we solve the NPN equations with the reversed junction voltages (sign = -1) and flip the
+     * terminal currents back. The conductances (derivatives) are identical in both cases.
+     */
+    private void stampBjt(int i, int c, int bn, int e, boolean pnp) {
+        double sign = pnp ? -1 : 1;
         double vcrit = VT * Math.log(VT / (Math.sqrt(2) * IS_BJT));
-        double vbe = pnjlim(vNew[bn] - vNew[e], lim1[i], VT, vcrit);
-        double vbc = pnjlim(vNew[bn] - vNew[c], lim2[i], VT, vcrit);
+        double vbe = pnjlim(sign * (vNew[bn] - vNew[e]), lim1[i], VT, vcrit);
+        double vbc = pnjlim(sign * (vNew[bn] - vNew[c]), lim2[i], VT, vcrit);
         lim1[i] = vbe;
         lim2[i] = vbc;
         double exf = Math.exp(vbe / VT), exr = Math.exp(vbc / VT);
@@ -436,10 +469,12 @@ public class CircuitEngine {
         double ie = -(ic + ib);
         double icBe = gf, icBc = -gr * (1 + 1 / BETA_R);
         double ibBe = gf / BETA_F, ibBc = gr / BETA_R;
-        stampTerm(c, c, bn, e, ic, icBe, icBc, vbe, vbc);
-        stampTerm(bn, c, bn, e, ib, ibBe, ibBc, vbe, vbc);
-        stampTerm(e, c, bn, e, ie, -(icBe + ibBe), -(icBc + ibBc), vbe, vbc);
+        double vbe0 = sign * vbe, vbc0 = sign * vbc;           // linearisation point in real voltages
+        stampTerm(c, c, bn, e, sign * ic, icBe, icBc, vbe0, vbc0);
+        stampTerm(bn, c, bn, e, sign * ib, ibBe, ibBc, vbe0, vbc0);
+        stampTerm(e, c, bn, e, sign * ie, -(icBe + ibBe), -(icBc + ibBc), vbe0, vbc0);
     }
+
 
     private void stampTerm(int t, int c, int bn, int e, double i0, double dBe, double dBc, double vbe, double vbc) {
         add(t, bn, dBe + dBc);
@@ -448,6 +483,7 @@ public class CircuitEngine {
         addB(t, -(i0 - dBe * vbe - dBc * vbc));
     }
 
+    // ------------------------------------------------------------------ linear solve (Gauss + partial pivoting)
     private void solve() {
         int n = size;
         for (int c = 0; c < n; c++) {
@@ -475,6 +511,7 @@ public class CircuitEngine {
         }
     }
 
+    //measuring
     private void measure() {
         for (int i = 0; i < devs.length; i++) {
             Part p = devs[i];
@@ -511,7 +548,7 @@ public class CircuitEngine {
     }
 
     private void endWindow() {
-        if (windowsDone++ == 0) {          
+        if (windowsDone++ == 0) {          // ignore the start-up transient
             for (int i = 0; i < devs.length; i++) accMeas[i] = accMeas2[i] = accCur[i] = accVd[i] = 0;
             maxSrc = 0;
             winCount = 0;
