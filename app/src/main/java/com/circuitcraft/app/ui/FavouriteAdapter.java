@@ -15,6 +15,7 @@ public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.VH> 
 
     public interface Listener {
         void onOpen(Favourite f);
+        void onShare(Favourite f);
         void onDelete(Favourite f);
     }
 
@@ -38,6 +39,7 @@ public class FavouriteAdapter extends RecyclerView.Adapter<FavouriteAdapter.VH> 
         h.b.tvName.setText(f.name);
         h.b.tvDetails.setText(f.summary);
         h.itemView.setOnClickListener(v -> listener.onOpen(f));
+        h.b.btnShare.setOnClickListener(v -> listener.onShare(f));
         h.b.btnDelete.setOnClickListener(v -> listener.onDelete(f));
     }
 

@@ -8,7 +8,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.circuitcraft.app.databinding.ActivityCalculatorBinding;
 import com.circuitcraft.app.logic.CircuitCalculator;
 
-public class CalculatorActivity extends AppCompatActivity {
+/** Practice Ohm's law: leave one of V, I, R empty and the app solves for it. */
+public class CalculatorActivity extends BaseActivity {
     private ActivityCalculatorBinding b;
 
     @Override
@@ -19,6 +20,7 @@ public class CalculatorActivity extends AppCompatActivity {
         b.btnOhm.setOnClickListener(v -> solveOhm());
     }
 
+    /** Returns null if empty, NaN if invalid, otherwise the number. */
     private Double read(EditText et) {
         String s = et.getText().toString().trim();
         if (s.isEmpty()) return null;

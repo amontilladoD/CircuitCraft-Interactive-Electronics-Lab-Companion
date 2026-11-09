@@ -19,7 +19,11 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RegisterActivity extends AppCompatActivity {
+/**
+ * Sign-up screen. Firebase automatically signs a new user in, so after the profile is saved
+ * we SIGN OUT again and send the user to the Sign-in screen: a real sign-in is always required.
+ */
+public class RegisterActivity extends BaseActivity {
     private ActivityRegisterBinding binding;
     private boolean finished = false;
 
@@ -55,17 +59,19 @@ public class RegisterActivity extends AppCompatActivity {
             FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
             if (user == null) { goToLogin(); return; }
 
+            // save the profile while the new account is still signed in
             user.updateProfile(new UserProfileChangeRequest.Builder().setDisplayName(name).build());
             Map<String, Object> profile = new HashMap<>();
             profile.put("name", name);
             profile.put("email", email);
             FirebaseFirestore.getInstance().collection("users").document(user.getUid()).set(profile)
                     .addOnCompleteListener(t -> goToLogin());
-            
+            // if Firestore is slow/offline, don't wait forever
             new Handler(Looper.getMainLooper()).postDelayed(this::goToLogin, 3000);
         });
     }
 
+    /** Sign out and go to the Sign-in screen (runs once). */
     private void goToLogin() {
         if (finished) return;
         finished = true;

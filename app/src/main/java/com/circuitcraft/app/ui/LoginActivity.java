@@ -11,24 +11,26 @@ import com.circuitcraft.app.MainActivity;
 import com.circuitcraft.app.databinding.ActivityLoginBinding;
 import com.google.firebase.auth.FirebaseAuth;
 
-public class LoginActivity extends AppCompatActivity {
+/** Sign-in screen (Firebase Authentication, email + password). */
+public class LoginActivity extends BaseActivity {
     private ActivityLoginBinding binding;
     private FirebaseAuth auth;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        binding = ActivityLoginBinding.inflate(getLayoutInflater());   
+        binding = ActivityLoginBinding.inflate(getLayoutInflater());   // View Binding
         setContentView(binding.getRoot());
         auth = FirebaseAuth.getInstance();
 
+        // Already signed in? skip this screen.
         if (auth.getCurrentUser() != null) {
             goToMain();
             return;
         }
 
         binding.btnLogin.setOnClickListener(v -> login());
-        
+        // EXPLICIT intent: we name the exact Activity to open
         binding.btnGoRegister.setOnClickListener(v ->
                 startActivity(new Intent(this, RegisterActivity.class)));
     }
@@ -54,7 +56,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void goToMain() {
         Intent i = new Intent(this, MainActivity.class);
-        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); 
+        i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK); // clear back stack
         startActivity(i);
         finish();
     }

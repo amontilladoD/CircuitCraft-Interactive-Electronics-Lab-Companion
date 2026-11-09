@@ -11,12 +11,14 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.lifecycle.ViewModelProvider;
 
 import com.circuitcraft.app.data.FavouriteRepository;
 import com.circuitcraft.app.databinding.ActivityLabBinding;
 import com.circuitcraft.app.logic.CircuitCalculator;
 import com.circuitcraft.app.logic.Units;
 import com.circuitcraft.app.model.Favourite;
+import com.circuitcraft.app.receiver.SystemEventReceiver;
 import com.circuitcraft.app.sim.CircuitEngine;
 import com.circuitcraft.app.sim.CircuitIO;
 import com.circuitcraft.app.sim.CircuitModel;
@@ -30,10 +32,19 @@ import com.google.firebase.auth.FirebaseUser;
 import java.util.List;
 import java.util.Locale;
 
-public class LabActivity extends AppCompatActivity implements SimulatorView.Listener {
+/**
+ * Circuit Lab (the simulator screen).
+ *  Palette  -> adds a part to the workbench
+ *  Workbench (SimulatorView) -> drag parts / wires, tap to select
+ *  Run      -> CircuitEngine simulates every 30 ms (Handler loop) and the meters update
+ *  Save     -> stores the whole circuit as a favourite
+ */
+public class LabActivity extends BaseActivity implements SimulatorView.Listener {
     public static final String EXTRA_JSON = "circuit_json";
 
     private ActivityLabBinding b;
+    private LabViewModel vm;
+    private SystemEventReceiver systemReceiver;
     private final Handler handler = new Handler(Looper.getMainLooper());
     private boolean running = false;
 
@@ -41,8 +52,8 @@ public class LabActivity extends AppCompatActivity implements SimulatorView.List
         @Override
         public void run() {
             if (!running) return;
-            b.simView.getEngine().tick();     
-            b.simView.invalidate();           
+            b.simView.getEngine().tick();     // simulate ~30 ms of circuit time
+            b.simView.invalidate();           // redraw LEDs, meters
             updateStatus();
             handler.postDelayed(this, 30);
         }
@@ -56,12 +67,21 @@ public class LabActivity extends AppCompatActivity implements SimulatorView.List
         b = ActivityLabBinding.inflate(getLayoutInflater());
         setContentView(b.getRoot());
 
-        String json = getIntent().getStringExtra(EXTRA_JSON);
-        b.simView.setModel(json != null ? CircuitIO.fromJson(json) : CircuitModel.withBreadboard());
+        // The circuit lives in the ViewModel, so it survives screen rotation.
+        vm = new ViewModelProvider(this).get(LabViewModel.class);
+        if (vm.model == null) {
+            String json = getIntent().getStringExtra(EXTRA_JSON);   // opened from Favourites?
+            vm.model = json != null ? CircuitIO.fromJson(json) : CircuitModel.withBreadboard();
+        }
+        b.simView.setModel(vm.model);
         b.simView.setListener(this);
+        if (vm.selected >= 0 && vm.selected < vm.model.parts.size()) {
+            b.simView.select(vm.model.parts.get(vm.selected));
+        }
 
         buildPalette();
         b.btnRun.setOnClickListener(v -> toggleRun());
+        b.btnView.setOnClickListener(v -> b.simView.toggleOverview());
         b.btnRotate.setOnClickListener(v -> rotateSelected());
         b.btnValue.setOnClickListener(v -> editValue());
         b.btnDelete.setOnClickListener(v -> deleteSelected());
@@ -70,12 +90,52 @@ public class LabActivity extends AppCompatActivity implements SimulatorView.List
         updateStatus();
     }
 
+    // pause the simulation when the screen is hidden / rotating, continue afterwards
     @Override
     protected void onPause() {
         super.onPause();
-        if (running) toggleRun();      
+        if (running) {
+            vm.resumeRun = true;
+            stopRun();
+        }
     }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (vm.resumeRun) {
+            vm.resumeRun = false;
+            startRun();
+        }
+    }
+
+    // BroadcastReceiver (system events): low battery -> stop the simulation to save power
+    @Override
+    protected void onStart() {
+        super.onStart();
+        systemReceiver = new SystemEventReceiver(new SystemEventReceiver.Simple() {
+            @Override
+            public void onBatteryLow() {
+                vm.resumeRun = false;
+                if (running) {
+                    stopRun();
+                    toast("🔋 Battery low - simulation stopped to save power");
+                }
+            }
+        });
+        registerReceiver(systemReceiver, SystemEventReceiver.filter());
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        if (systemReceiver != null) {
+            unregisterReceiver(systemReceiver);
+            systemReceiver = null;
+        }
+    }
+
+    // ------------------------------------------------------------ palette
     private void buildPalette() {
         for (PartType t : PartType.values()) {
             MaterialButton btn = new MaterialButton(this, null,
@@ -83,8 +143,10 @@ public class LabActivity extends AppCompatActivity implements SimulatorView.List
             btn.setText(t.emoji + " " + t.label);
             btn.setAllCaps(false);
             btn.setTextSize(12);
+            boolean vertical = b.paletteRow.getOrientation() == LinearLayout.VERTICAL;
             btn.setLayoutParams(new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
+                    vertical ? ViewGroup.LayoutParams.MATCH_PARENT : ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
             btn.setOnClickListener(v -> addPart(t));
             b.paletteRow.addView(btn);
         }
@@ -103,20 +165,27 @@ public class LabActivity extends AppCompatActivity implements SimulatorView.List
                 : "Drag the part onto the breadboard", Toast.LENGTH_SHORT).show();
     }
 
+    // ------------------------------------------------------------ toolbar actions
     private void toggleRun() {
-        CircuitEngine engine = b.simView.getEngine();
-        if (!running) {
-            engine.start();
-            running = true;
-            b.btnRun.setText("■ Stop");
-            handler.post(ticker);
-        } else {
-            running = false;
-            handler.removeCallbacks(ticker);
-            engine.stop();
-            b.btnRun.setText("▶ Run");
-            b.simView.invalidate();
-        }
+        vm.resumeRun = false;
+        if (running) stopRun();
+        else startRun();
+    }
+
+    private void startRun() {
+        b.simView.getEngine().start();
+        running = true;
+        b.btnRun.setText("■ Stop");
+        handler.post(ticker);
+        updateStatus();
+    }
+
+    private void stopRun() {
+        running = false;
+        handler.removeCallbacks(ticker);
+        b.simView.getEngine().stop();
+        b.btnRun.setText("▶ Run");
+        b.simView.invalidate();
         updateStatus();
     }
 
@@ -155,6 +224,10 @@ public class LabActivity extends AppCompatActivity implements SimulatorView.List
                 break;
             case AC_SOURCE:
                 askAc(p);
+                break;
+            case CLOCK:
+                askNumber("Clock frequency (Hz)", "e.g. 1, 2, 50 (max 1000)", CircuitCalculator.format(p.value),
+                        v -> { p.value = Math.max(0.05, Math.min(v, 1000)); changed(); });
                 break;
             case MULTIMETER:
                 p.mode = p.mode == 1 ? 0 : 1;
@@ -225,6 +298,7 @@ public class LabActivity extends AppCompatActivity implements SimulatorView.List
                 .show();
     }
 
+    // ------------------------------------------------------------ check wiring
     private void showCheck() {
         List<String> warnings = b.simView.getEngine().diagnose();
         String msg;
@@ -246,6 +320,7 @@ public class LabActivity extends AppCompatActivity implements SimulatorView.List
                 .show();
     }
 
+    // ------------------------------------------------------------ favourites
     private void askNameAndSave() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
         CircuitModel model = b.simView.getModel();
@@ -272,8 +347,10 @@ public class LabActivity extends AppCompatActivity implements SimulatorView.List
                 .show();
     }
 
+    // ------------------------------------------------------------ status line
     @Override
     public void onSelectionChanged(Part p) {
+        if (vm != null) vm.selected = p == null ? -1 : vm.model.parts.indexOf(p);
         updateStatus();
     }
 
@@ -286,7 +363,8 @@ public class LabActivity extends AppCompatActivity implements SimulatorView.List
             if (!engine.hasGround) sb.append("\n⚠ Add a DC Battery or AC Source");
             else if (engine.warningCount() > 0) sb.append("   ⚠ ").append(engine.warningCount()).append(" warning(s) - tap Check");
         } else {
-            sb.append("Drag parts onto the breadboard, join them with jumper wires, then tap Run.");
+            sb.append("Drag parts onto the breadboard, join them with wires, then tap Run.\n"
+                    + "Drag empty space to move around - pinch to zoom - 🔍 View shows the whole bench.");
         }
         if (sel != null) {
             sb.append("\nSelected: ").append(b.simView.getModel().labelOf(sel));

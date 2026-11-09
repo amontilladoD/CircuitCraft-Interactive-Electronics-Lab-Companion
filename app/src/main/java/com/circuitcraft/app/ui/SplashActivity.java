@@ -1,63 +1,34 @@
 package com.circuitcraft.app.ui;
 
-import android.animation.AnimatorSet;
-import android.animation.ObjectAnimator;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
-import android.view.View;
-import android.view.animation.OvershootInterpolator;
-import android.widget.ImageView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.circuitcraft.app.R;
+import com.circuitcraft.app.databinding.ActivitySplashBinding;
 
+/** First screen: logo for 2 seconds, then Login (Login skips to the dashboard if already signed in). */
 public class SplashActivity extends AppCompatActivity {
-
-    private static final long SPLASH_DELAY_MS = 2500;
+    private static final long SPLASH_MS = 2000;
+    private final Handler handler = new Handler(Looper.getMainLooper());
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        ActivitySplashBinding binding = ActivitySplashBinding.inflate(getLayoutInflater());
+        setContentView(binding.getRoot());
 
-        if (getSupportActionBar() != null) {
-            getSupportActionBar().hide();
-        }
-
-        setContentView(R.layout.activity_splash);
-
-        ImageView logo = findViewById(R.id.splashLogo);
-        animateLogo(logo);
-
-        new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            startActivity(new Intent(SplashActivity.this, LoginActivity.class));
+        handler.postDelayed(() -> {
+            startActivity(new Intent(this, LoginActivity.class));
             finish();
-        }, SPLASH_DELAY_MS);
+        }, SPLASH_MS);
     }
 
-    private void animateLogo(View logo) {
-        
-        logo.setAlpha(0f);
-        logo.setScaleX(0.3f);
-        logo.setScaleY(0.3f);
-
-        ObjectAnimator fadeIn = ObjectAnimator.ofFloat(logo, "alpha", 0f, 1f);
-        fadeIn.setDuration(800);
-
-        ObjectAnimator scaleX = ObjectAnimator.ofFloat(logo, "scaleX", 0.3f, 1f);
-        scaleX.setDuration(1000);
-        scaleX.setInterpolator(new OvershootInterpolator(1.5f));
-
-        ObjectAnimator scaleY = ObjectAnimator.ofFloat(logo, "scaleY", 0.3f, 1f);
-        scaleY.setDuration(1000);
-        scaleY.setInterpolator(new OvershootInterpolator(1.5f));
-
-        AnimatorSet set = new AnimatorSet();
-        set.playTogether(fadeIn, scaleX, scaleY);
-        set.setStartDelay(200);
-        set.start();
+    @Override
+    protected void onDestroy() {
+        handler.removeCallbacksAndMessages(null);   // cancel if rotated / closed early
+        super.onDestroy();
     }
 }
-

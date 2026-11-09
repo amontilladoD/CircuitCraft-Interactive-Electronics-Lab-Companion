@@ -9,7 +9,8 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import com.circuitcraft.app.data.ComponentRepository;
 import com.circuitcraft.app.databinding.ActivityComponentsBinding;
 
-public class ComponentsActivity extends AppCompatActivity {
+/** RecyclerView of electronic parts; tap one to read its description and common mistake. */
+public class ComponentsActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
