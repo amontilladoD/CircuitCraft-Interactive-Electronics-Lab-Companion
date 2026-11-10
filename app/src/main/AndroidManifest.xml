@@ -1,17 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!-- Network: Firebase, quiz JSON download, connectivity receiver -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <!-- Foreground service + its notification (Android 13 needs a runtime request for notifications) -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+    <!-- Content Provider access to shared device data (contacts) - runtime permission -->
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <application
+        android:name=".CircuitCraftApp"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
-        android:roundIcon="@mipmap/ic_launcher_round"
         android:label="CircuitCraft"
         android:supportsRtl="true"
         android:theme="@style/Theme.CircuitCraft">
 
+        <!-- Launcher: logo splash, then Login. No orientation lock: every screen rotates. -->
         <activity android:name=".ui.SplashActivity" android:exported="true"
             android:theme="@style/Theme.CircuitCraft.Splash">
             <intent-filter>
@@ -24,6 +31,7 @@
             android:parentActivityName=".ui.LoginActivity" />
         <activity android:name=".MainActivity" android:exported="false" />
 
+        <!-- parentActivityName gives each screen an automatic "Up" arrow -->
         <activity android:name=".ui.ComponentsActivity" android:exported="false"
             android:label="Components Library" android:parentActivityName=".MainActivity" />
         <activity android:name=".ui.CalculatorActivity" android:exported="false"
@@ -32,14 +40,29 @@
             android:label="Circuit Lab" android:parentActivityName=".MainActivity" />
         <activity android:name=".ui.QuizActivity" android:exported="false"
             android:label="Circuit Quiz" android:parentActivityName=".MainActivity" />
+        <activity android:name=".ui.LeaderboardActivity" android:exported="false"
+            android:label="Leaderboard" android:parentActivityName=".MainActivity" />
         <activity android:name=".ui.FavouritesActivity" android:exported="false"
             android:label="Favourite Circuits" android:parentActivityName=".MainActivity" />
 
+        <!-- Foreground service: quiz stopwatch with a live notification -->
         <service android:name=".service.QuizTimerService" android:exported="false" />
 
+        <!-- ContentProvider: favourite circuits (SQLite) -->
         <provider
             android:name=".data.FavouriteProvider"
             android:authorities="com.circuitcraft.app.provider"
             android:exported="false" />
+
+        <!-- FileProvider: lets other apps (WhatsApp, Bluetooth...) read the APK we share -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
     </application>
 </manifest>

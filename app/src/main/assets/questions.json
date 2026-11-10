@@ -1,31 +1,334 @@
 {
   "questions": [
-    {"q": "Which formula is Ohm's law?",
-     "options": ["V = I × R", "P = V ÷ R", "R = V × I", "I = R ÷ V"],
-     "answer": 0, "explain": "Voltage equals current times resistance."},
-    {"q": "A 12 V battery is connected across a 4 Ω resistor. What current flows?",
-     "options": ["48 A", "3 A", "0.33 A", "8 A"],
-     "answer": 1, "explain": "I = V ÷ R = 12 ÷ 4 = 3 A."},
-    {"q": "Two resistors of 100 Ω and 200 Ω are in series. Total resistance?",
-     "options": ["67 Ω", "100 Ω", "300 Ω", "20000 Ω"],
-     "answer": 2, "explain": "In series resistances add: 100 + 200 = 300 Ω."},
-    {"q": "Two 100 Ω resistors are connected in parallel. Total resistance?",
-     "options": ["200 Ω", "100 Ω", "25 Ω", "50 Ω"],
-     "answer": 3, "explain": "Equal resistors in parallel: R ÷ 2 = 50 Ω."},
-    {"q": "Why must an LED have a series resistor?",
-     "options": ["To make it brighter", "To limit the current", "To change its colour", "To store charge"],
-     "answer": 1, "explain": "An LED has almost no resistance once on, so a resistor limits the current to a safe value."},
-    {"q": "A 5 V supply powers a red LED (2 V, 20 mA). Which resistor is needed?",
-     "options": ["150 Ω", "15 Ω", "1.5 kΩ", "250 Ω"],
-     "answer": 0, "explain": "R = (5 − 2) ÷ 0.02 = 150 Ω."},
-    {"q": "In a parallel circuit, what is the same across every branch?",
-     "options": ["Current", "Resistance", "Voltage", "Power"],
-     "answer": 2, "explain": "All parallel branches are connected to the same two points, so they have the same voltage."},
-    {"q": "On a breadboard, which holes are connected in the main area?",
-     "options": ["The 5 holes in one short column", "The whole row of 30 holes", "Every hole on the board", "Holes diagonal to each other"],
-     "answer": 0, "explain": "Each group of 5 holes (a–e or f–j) in a column is joined underneath."},
-    {"q": "What is a short circuit?",
-     "options": ["A very long wire", "A path with almost zero resistance, so huge current flows", "A circuit with no battery", "A broken wire"],
-     "answer": 1, "explain": "With almost no resistance, I = V ÷ R becomes very large and parts can overheat."}
+    {
+      "q": "Which formula is Ohm's law?",
+      "options": [
+        "V = I × R",
+        "P = V ÷ R",
+        "R = V × I",
+        "I = R ÷ V"
+      ],
+      "answer": 0,
+      "explain": "Voltage equals current times resistance."
+    },
+    {
+      "q": "A 12 V battery is connected across a 4 Ω resistor. What current flows?",
+      "options": [
+        "48 A",
+        "3 A",
+        "0.33 A",
+        "8 A"
+      ],
+      "answer": 1,
+      "explain": "I = V ÷ R = 12 ÷ 4 = 3 A."
+    },
+    {
+      "q": "Two resistors of 100 Ω and 200 Ω are in series. Total resistance?",
+      "options": [
+        "67 Ω",
+        "100 Ω",
+        "300 Ω",
+        "20000 Ω"
+      ],
+      "answer": 2,
+      "explain": "In series, resistances add: 100 + 200 = 300 Ω."
+    },
+    {
+      "q": "Two 100 Ω resistors are connected in parallel. Total resistance?",
+      "options": [
+        "200 Ω",
+        "100 Ω",
+        "25 Ω",
+        "50 Ω"
+      ],
+      "answer": 3,
+      "explain": "Equal resistors in parallel: R ÷ 2 = 50 Ω."
+    },
+    {
+      "q": "Why must an LED have a series resistor?",
+      "options": [
+        "To make it brighter",
+        "To limit the current",
+        "To change its colour",
+        "To store charge"
+      ],
+      "answer": 1,
+      "explain": "An LED needs current limiting to prevent excessive current and damage."
+    },
+    {
+      "q": "A 5 V supply powers a red LED (2 V, 20 mA). Which resistor is needed?",
+      "options": [
+        "150 Ω",
+        "15 Ω",
+        "1.5 kΩ",
+        "250 Ω"
+      ],
+      "answer": 0,
+      "explain": "R = (5 − 2) ÷ 0.02 = 150 Ω."
+    },
+    {
+      "q": "In a parallel circuit, what is the same across every branch?",
+      "options": [
+        "Current",
+        "Resistance",
+        "Voltage",
+        "Power"
+      ],
+      "answer": 2,
+      "explain": "All parallel branches are connected to the same two points, so they have the same voltage."
+    },
+    {
+      "q": "On a breadboard, which holes are connected in the main area?",
+      "options": [
+        "The 5 holes in one short column",
+        "The whole row of 30 holes",
+        "Every hole on the board",
+        "Holes diagonal to each other"
+      ],
+      "answer": 0,
+      "explain": "Each group of 5 holes (a–e or f–j) in a column is joined underneath."
+    },
+    {
+      "q": "What is a short circuit?",
+      "options": [
+        "A very long wire",
+        "A path with almost zero resistance, so huge current flows",
+        "A circuit with no battery",
+        "A broken wire"
+      ],
+      "answer": 1,
+      "explain": "With almost no resistance, I = V ÷ R becomes very large and components can overheat."
+    },
+    {
+      "q": "What is the SI unit of electric current?",
+      "options": [
+        "Volt",
+        "Ohm",
+        "Ampere",
+        "Watt"
+      ],
+      "answer": 2,
+      "explain": "Electric current is measured in amperes (A)."
+    },
+    {
+      "q": "What is the SI unit of resistance?",
+      "options": [
+        "Ohm",
+        "Volt",
+        "Ampere",
+        "Joule"
+      ],
+      "answer": 0,
+      "explain": "Resistance is measured in ohms (Ω)."
+    },
+    {
+      "q": "Which instrument is used to measure voltage?",
+      "options": [
+        "Ammeter",
+        "Voltmeter",
+        "Wattmeter",
+        "Ohmmeter"
+      ],
+      "answer": 1,
+      "explain": "A voltmeter measures the potential difference between two points."
+    },
+    {
+      "q": "How should an ammeter be connected in a circuit?",
+      "options": [
+        "In parallel",
+        "In series",
+        "Across the battery only",
+        "Without connecting it"
+      ],
+      "answer": 1,
+      "explain": "An ammeter is connected in series so the circuit current flows through it."
+    },
+    {
+      "q": "How should a voltmeter be connected to measure a resistor's voltage?",
+      "options": [
+        "In series",
+        "In parallel",
+        "Between two batteries only",
+        "Without a connection"
+      ],
+      "answer": 1,
+      "explain": "A voltmeter is connected in parallel across the component."
+    },
+    {
+      "q": "What does a capacitor store?",
+      "options": [
+        "Magnetic energy",
+        "Electrical charge and energy",
+        "Mechanical energy",
+        "Sound energy"
+      ],
+      "answer": 1,
+      "explain": "A capacitor stores electrical energy in an electric field."
+    },
+    {
+      "q": "What is the unit of capacitance?",
+      "options": [
+        "Henry",
+        "Farad",
+        "Tesla",
+        "Ohm"
+      ],
+      "answer": 1,
+      "explain": "Capacitance is measured in farads (F)."
+    },
+    {
+      "q": "Which component allows current to flow mainly in one direction?",
+      "options": [
+        "Resistor",
+        "Capacitor",
+        "Diode",
+        "Inductor"
+      ],
+      "answer": 2,
+      "explain": "A diode conducts mainly in the forward direction and blocks reverse current under normal conditions."
+    },
+    {
+      "q": "What happens when an LED is connected with reverse polarity?",
+      "options": [
+        "It becomes brighter",
+        "It normally does not glow",
+        "It stores energy",
+        "Its resistance becomes zero"
+      ],
+      "answer": 1,
+      "explain": "An LED normally blocks current when reverse-biased."
+    },
+    {
+      "q": "What is the main function of a transistor?",
+      "options": [
+        "Store electricity",
+        "Act as a switch or amplifier",
+        "Measure voltage",
+        "Generate light"
+      ],
+      "answer": 1,
+      "explain": "A transistor can control current and work as an electronic switch or amplifier."
+    },
+    {
+      "q": "What is the function of a battery in a circuit?",
+      "options": [
+        "Limit resistance",
+        "Provide electrical energy",
+        "Measure current",
+        "Store magnetic energy"
+      ],
+      "answer": 1,
+      "explain": "A battery supplies electrical energy by maintaining a potential difference."
+    },
+    {
+      "q": "A 10 Ω resistor carries 2 A current. What is the voltage?",
+      "options": [
+        "5 V",
+        "12 V",
+        "20 V",
+        "0.2 V"
+      ],
+      "answer": 2,
+      "explain": "V = I × R = 2 × 10 = 20 V."
+    },
+    {
+      "q": "A device operates at 12 V and draws 2 A. What is its power?",
+      "options": [
+        "6 W",
+        "14 W",
+        "24 W",
+        "48 W"
+      ],
+      "answer": 2,
+      "explain": "P = V × I = 12 × 2 = 24 W."
+    },
+    {
+      "q": "What happens to total resistance when more resistors are added in series?",
+      "options": [
+        "It decreases",
+        "It increases",
+        "It becomes zero",
+        "It stays the same"
+      ],
+      "answer": 1,
+      "explain": "Series resistances add together, increasing total resistance."
+    },
+    {
+      "q": "What happens to total resistance when another resistor is added in parallel?",
+      "options": [
+        "It always increases",
+        "It decreases",
+        "It becomes infinite",
+        "It stays the same"
+      ],
+      "answer": 1,
+      "explain": "Adding another parallel path decreases the equivalent resistance."
+    },
+    {
+      "q": "What is the purpose of a fuse?",
+      "options": [
+        "Increase voltage",
+        "Protect against excessive current",
+        "Store charge",
+        "Increase resistance permanently"
+      ],
+      "answer": 1,
+      "explain": "A fuse melts and breaks the circuit when current exceeds its rated limit."
+    },
+    {
+      "q": "What is the purpose of a switch?",
+      "options": [
+        "Control the flow of current",
+        "Increase battery voltage",
+        "Store energy",
+        "Measure resistance"
+      ],
+      "answer": 0,
+      "explain": "A switch opens or closes a circuit to stop or allow current flow."
+    },
+    {
+      "q": "What does an open circuit mean?",
+      "options": [
+        "Current flows normally",
+        "The circuit path is broken",
+        "Resistance is zero",
+        "Voltage is always zero"
+      ],
+      "answer": 1,
+      "explain": "An open circuit has a broken path, so no current flows through that path."
+    },
+    {
+      "q": "What is the main purpose of a breadboard?",
+      "options": [
+        "Permanently solder components",
+        "Build and test circuits without soldering",
+        "Generate electricity",
+        "Measure resistance"
+      ],
+      "answer": 1,
+      "explain": "A breadboard allows temporary circuit connections without soldering."
+    },
+    {
+      "q": "Which precaution should be taken before changing circuit connections?",
+      "options": [
+        "Increase the voltage",
+        "Disconnect the power supply",
+        "Touch both battery terminals",
+        "Short the circuit"
+      ],
+      "answer": 1,
+      "explain": "Disconnecting the power supply helps prevent accidental short circuits and component damage."
+    },
+    {
+      "q": "What is the function of a resistor in an electric circuit?",
+      "options": [
+        "Limit or control current",
+        "Generate electrical energy",
+        "Store magnetic energy",
+        "Produce sound"
+      ],
+      "answer": 0,
+      "explain": "A resistor opposes current flow and can be used to control current and divide voltage."
+    }
   ]
 }

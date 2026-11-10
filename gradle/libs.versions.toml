@@ -1,3 +1,4 @@
+# All dependency + plugin versions live here (Gradle "version catalog").
 [versions]
 agp = "8.0.0-alpha01"
 googleServices = "4.3.14"
@@ -15,6 +16,7 @@ androidx-recyclerview = { group = "androidx.recyclerview", name = "recyclerview"
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBom" }
 firebase-auth = { group = "com.google.firebase", name = "firebase-auth" }
 firebase-firestore = { group = "com.google.firebase", name = "firebase-firestore" }
+firebase-database = { group = "com.google.firebase", name = "firebase-database" }
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
