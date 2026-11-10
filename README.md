@@ -1,9 +1,5 @@
 <div align="center">
 
-<img src="docs/circuitcraft-banner.jpg" alt="CircuitCraft Banner" width="100%" />
-
-<br/>
-
 <img src="app/src/main/res/drawable-nodpi/circuitcraft_logo.webp" alt="CircuitCraft Logo" width="130" />
 
 # ⚡ CircuitCraft
@@ -185,8 +181,6 @@ CircuitCraft/
 │   │   ├── java/com/circuitcraft/app/     # Core app, data, logic, model, receiver, service, sim, ui
 │   │   └── res/                           # drawables, drawable-nodpi, layout, layout-land, menu, mipmap, values, values-night, xml
 │   └── build.gradle                       # App module build config (compileSdk 33, minSdk 24)
-├── docs/
-│   └── circuitcraft-banner.jpg            # README hero illustration
 ├── gradle/
 │   ├── libs.versions.toml                 # Gradle version catalog (AGP, Material, Firebase BOM 32.0.0)
 │   └── wrapper/gradle-wrapper.properties  # Gradle 8.0 wrapper settings
