@@ -2,13 +2,17 @@ package com.circuitcraft.app.logic;
 
 import java.util.Locale;
 
+
 public class CircuitCalculator {
 
+    // Ohm's law: V = I x R
     public static double voltage(double current, double resistance) { return current * resistance; }
     public static double current(double voltage, double resistance) { return voltage / resistance; }
     public static double resistance(double voltage, double current) { return voltage / current; }
 
+    // Power: P = V x I
     public static double power(double voltage, double current) { return voltage * current; }
+
 
     public static String format(double v) {
         if (Double.isInfinite(v)) return "∞";

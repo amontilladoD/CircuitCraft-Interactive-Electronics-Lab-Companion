@@ -1,5 +1,6 @@
 package com.circuitcraft.app.model;
 
+
 public class ComponentItem {
     public final String icon, name, category, description, tip;
 

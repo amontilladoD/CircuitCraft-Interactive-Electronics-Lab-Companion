@@ -3,12 +3,13 @@ package com.circuitcraft.app.model;
 import java.util.HashMap;
 import java.util.Map;
 
+
 public class Favourite {
     public long id;
-    public String owner;      
+    public String owner;      // Firebase user id
     public String name;
-    public String data;       
-    public String summary;    
+    public String data;       // circuit JSON (see CircuitIO)
+    public String summary;    // short description of the parts
 
     public Map<String, Object> toMap() {
         Map<String, Object> m = new HashMap<>();
