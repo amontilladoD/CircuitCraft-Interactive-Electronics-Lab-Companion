@@ -12,19 +12,26 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.circuitcraft.app.databinding.ActivityMainBinding;
 import com.circuitcraft.app.receiver.NetworkReceiver;
+import com.circuitcraft.app.receiver.SystemEventReceiver;
+import com.circuitcraft.app.ui.AppSharer;
+import com.circuitcraft.app.ui.BaseActivity;
 import com.circuitcraft.app.ui.CalculatorActivity;
 import com.circuitcraft.app.ui.ComponentsActivity;
 import com.circuitcraft.app.ui.FavouritesActivity;
 import com.circuitcraft.app.ui.LabActivity;
+import com.circuitcraft.app.ui.LeaderboardActivity;
 import com.circuitcraft.app.ui.LoginActivity;
 import com.circuitcraft.app.ui.QuizActivity;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 
-public class MainActivity extends AppCompatActivity {
-    private static final String TAG = "MainActivity";   
+
+public class MainActivity extends BaseActivity {
+    private static final String TAG = "MainActivity";
     private ActivityMainBinding binding;
     private NetworkReceiver networkReceiver;
+    private SystemEventReceiver systemReceiver;
+    private boolean batteryLow, airplane;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +41,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(binding.getRoot());
 
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null) {                      
+        if (user == null) {                      // safety: not signed in
             startActivity(new Intent(this, LoginActivity.class));
             finish();
             return;
@@ -43,21 +50,20 @@ public class MainActivity extends AppCompatActivity {
                 ? user.getDisplayName() : user.getEmail();
         binding.tvWelcome.setText("Hello, " + who + " 👋");
 
+        // ---- Explicit intents: open our own screens ----
         binding.btnComponents.setOnClickListener(v -> open(ComponentsActivity.class));
         binding.btnCalculator.setOnClickListener(v -> open(CalculatorActivity.class));
         binding.btnLab.setOnClickListener(v -> open(LabActivity.class));
         binding.btnQuiz.setOnClickListener(v -> open(QuizActivity.class));
+        binding.btnLeaderboard.setOnClickListener(v -> open(LeaderboardActivity.class));
         binding.btnFavourites.setOnClickListener(v -> open(FavouritesActivity.class));
 
+        // ---- Implicit intent 1: open a web page (any browser app can handle it) ----
         binding.btnHelp.setOnClickListener(v -> startActivity(new Intent(Intent.ACTION_VIEW,
                 Uri.parse("https://www.allaboutcircuits.com/textbook/"))));
 
-        binding.btnShare.setOnClickListener(v -> {
-            Intent send = new Intent(Intent.ACTION_SEND);
-            send.setType("text/plain");
-            send.putExtra(Intent.EXTRA_TEXT, "Learn electronics with CircuitCraft - interactive lab companion!");
-            startActivity(Intent.createChooser(send, "Share via"));
-        });
+        // ---- Implicit intent 2: share the APK file + GitHub link + a short message ----
+        binding.btnShare.setOnClickListener(v -> AppSharer.share(this));
 
         binding.btnLogout.setOnClickListener(v -> {
             FirebaseAuth.getInstance().signOut();
@@ -75,11 +81,34 @@ public class MainActivity extends AppCompatActivity {
     protected void onStart() {
         super.onStart();
         Log.d(TAG, "onStart");
-        
+
+        // 1) connectivity
         networkReceiver = new NetworkReceiver(online ->
                 binding.tvOffline.setVisibility(online ? View.GONE : View.VISIBLE));
         registerReceiver(networkReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
         binding.tvOffline.setVisibility(NetworkReceiver.isOnline(this) ? View.GONE : View.VISIBLE);
+
+        // 2) low battery + airplane mode
+        batteryLow = SystemEventReceiver.isBatteryLow(this);
+        airplane = SystemEventReceiver.isAirplaneOn(this);
+        updateAlert();
+        systemReceiver = new SystemEventReceiver(new SystemEventReceiver.Listener() {
+            @Override public void onBatteryLow() { batteryLow = true; updateAlert(); }
+            @Override public void onBatteryOkay() { batteryLow = false; updateAlert(); }
+            @Override public void onAirplaneMode(boolean on) { airplane = on; updateAlert(); }
+        });
+        registerReceiver(systemReceiver, SystemEventReceiver.filter());
+    }
+
+    private void updateAlert() {
+        StringBuilder sb = new StringBuilder();
+        if (batteryLow) sb.append("🔋 Battery is low - the simulator pauses to save power");
+        if (airplane) {
+            if (sb.length() > 0) sb.append("\n");
+            sb.append("✈ Airplane mode is ON - cloud features (sign-in, leaderboard) need internet");
+        }
+        binding.tvAlert.setText(sb.toString());
+        binding.tvAlert.setVisibility(sb.length() == 0 ? View.GONE : View.VISIBLE);
     }
 
     @Override
@@ -87,8 +116,12 @@ public class MainActivity extends AppCompatActivity {
         super.onStop();
         Log.d(TAG, "onStop");
         if (networkReceiver != null) {
-            unregisterReceiver(networkReceiver);   
+            unregisterReceiver(networkReceiver);   // always unregister to avoid leaks
             networkReceiver = null;
+        }
+        if (systemReceiver != null) {
+            unregisterReceiver(systemReceiver);
+            systemReceiver = null;
         }
     }
 
